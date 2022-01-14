@@ -1,2 +1,2 @@
 # RAT-Net
-Coming soon
+Region Aware Transformer for Automatic Breast Ultrasound Tumor Segmentation
