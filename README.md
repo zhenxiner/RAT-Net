@@ -14,6 +14,21 @@ tqdm==4.62.3
 ## Train on your dataset
 
 ### Dataset format
+day1-gulp1
+├── README.md
+├── gulpfile.js
+├── js
+│   └── main.js
+├── package-lock.json
+├── package.json
+├── src
+│   ├── css
+│   │   ├── style.css
+│   │   └── style1.css
+│   ├── index.html
+│   └── ts
+│       └── main.ts
+└── tsconfig.json
 
 ### Train
 
