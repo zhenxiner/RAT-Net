@@ -2,6 +2,14 @@
 Region Aware Transformer for Automatic Breast Ultrasound Tumor Segmentation
 
 ## Prerequisites
+```python 
+numpy==1.19.5
+torch==1.10.0+cu113
+opencv-python==4.5.4.60
+imgaug==0.4.0
+matplotlib==3.5.0
+tqdm==4.62.3
+```
 
 ## Train on your dataset
 
