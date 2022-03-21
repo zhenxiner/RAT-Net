@@ -4,6 +4,7 @@ Region Aware Transformer for Automatic Breast Ultrasound Tumor Segmentation
 # Abstract
 Although Automatic Breast Ultrasound (ABUS) has become an important tool to detect breast cancer, computer-aided diagnosis requires accurate segmentation of tumors on ABUS. In this paper, we propose the Region Aware Transformer Network (RAT-Net) for tumor segmentation on ABUS images. RAT-Net incorporates region prior information of tumors into network design. The specially designed Region Aware Self-Attention Block (RASAB) and Region Aware Transformer Block (RATB) fuse the tumor region information into multi-scale features to obtain accurate segmentation. To the best of our knowledge, it is the first time that tumor region distributions are incorporated into network architectures for ABUS image segmentation. Experimental results on a dataset of 256 subjects (330 ABUS images each) show that RAT-Net outperforms other state-of-the-art methods.
 
+# Getting Started  
 ## Prerequisites
 ```python 
 numpy==1.19.5
