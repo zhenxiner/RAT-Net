@@ -34,7 +34,7 @@ dataset
 ├── testdata  
 │   ├── test img  
 │   └── test label  
-If it is a binary classification problem, the label data pixel value is 0 or 1.
+label format: for example, if your task is a binary classification problem, the label data pixel value is 0 or 1.
 
 ### Train
 
