@@ -20,7 +20,7 @@ tqdm==4.62.3
 ### Dataset format
 dataset  
 ├── traindata  
-│   ├── train img 
+│   ├── train img  
 │   │   ├── 00000.png  
 │   │    ……  
 │   │   └── XXXXX.png  
