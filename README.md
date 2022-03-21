@@ -26,7 +26,7 @@ dataset
 │   │   └── XXXXX.png  
 ├── valdata  
 │   ├── val img  
-│   └── val label 
+│   └── val label  
 ├── testdata  
 │   ├── test img  
 │   └── test label  
