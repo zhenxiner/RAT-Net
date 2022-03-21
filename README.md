@@ -7,9 +7,9 @@ Region Aware Transformer for Automatic Breast Ultrasound Tumor Segmentation
 
 # Test on your dataset
 Please modify lines 43~45 of test.py and set the paths of the .pth file, test image and test annotation file. Once done, you can use 
-···
-python test.py
-···
+```java  
+python test.py  
+```
 command to test work.
 
 # Predict
