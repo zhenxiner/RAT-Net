@@ -15,16 +15,20 @@ tqdm==4.62.3
 
 ### Dataset format
 dataset  
-├── README.md  
-├── gulpfile.js  
 ├── traindata  
-├── ├── train img
+│   ├── train img 
+│   │   ├── 00000.png
+│   │    ……
+│   │   └── XXXXX.png
 │   └── train label  
+│   │   ├── 00000.png
+│   │    ……
+│   │   └── XXXXX.png
 ├── valdata  
-├── ├── val img
+│   ├── val img  
 │   └── val label 
 ├── testdata  
-├── ├── test img
+│   ├── test img  
 │   └── test label 
 
 ### Train
