@@ -5,6 +5,31 @@ Region Aware Transformer for Automatic Breast Ultrasound Tumor Segmentation
 
 ## Train on your dataset
 
+###Dataset format
+
+###Train
+Please modify lines 22~27 of trainRATt3.py
+-load_pretrain: load your pretrain model. if you need load, set it to True.
+-load_path: the pretrain model path.
+-img_paths: the path of train data
+-label_paths: the path of train label data
+-valimg_paths: the path of validation data
+-vallabel_paths: the path of validation label data
+
+Please modify line 152 of ./model/RAtrasformer.py
+For example, the line is: "out[:, :, (h_x * 200 // 768):(h_x * 500 // 768), (w_x * 100 // 768):(w_x * 600 // 768)] = x"
+the number 768 is the original size of the training data, the number of other such as 200, 500 is the region you can set.
+
+Please modify line 53, 54 and 87 of ./model/RASAB_t3.py
+The modification method is the same as the RAtrasformer.py.
+
+ Once done, you can use 
+```python  
+python trainRATt3.py  
+```
+command to train the network.
+
+
 ## Test on your dataset
 Please modify lines 43~45 of test.py and set the paths of the .pth file, test image and test annotation file. Once done, you can use 
 ```python  
