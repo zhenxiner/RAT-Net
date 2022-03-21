@@ -47,17 +47,11 @@ class RAC(nn.Module):
             self.g = nn.Sequential(self.g, max_pool_layer)
             self.phi = nn.Sequential(self.phi, max_pool_layer)
 
-        self.conv_z = nn.Sequential(
-            conv_nd(in_channels=self.in_channels * 2, out_channels=self.in_channels,
-                    kernel_size=1, stride=1, padding=0),
-            bn(self.in_channels)
-        )
-
     def forward(self, x):
         batch_size = x.size(0)
         b_x, c_x, h_x, w_x = x.size()
-        x_attmap = x[:, :, (h_x * (288) // 768):(h_x * (474) // 768), (w_x * 26 // 768):(w_x * 767 // 768)].clone()
-        x_attmap_1 = x[:, :, (h_x * (303) // 768):(h_x * (405) // 768), (w_x * 126 // 768):(w_x * 535 // 768)].clone()
+        x_attmap = x[:, :, (h_x * (100) // 768):(h_x * (550) // 768), (w_x * 26 // 768):(w_x * 767 // 768)].clone()
+        x_attmap_1 = x[:, :, (h_x * (200) // 768):(h_x * (500) // 768), (w_x * 100 // 768):(w_x * 600 // 768)].clone()
 
         theta_x_1 = self.theta(x_attmap_1).view(batch_size, self.inter_channels, -1)
         theta_x_1 = theta_x_1.permute(0, 2, 1)
@@ -76,14 +70,21 @@ class RAC(nn.Module):
         return W_y_1
 
 class RASAB(nn.Module):
-    def __init__(self, in_channels,):
+    def __init__(self, in_channels):
         super(RASAB, self).__init__()
+        self.in_channels = in_channels
+        self.conv_z = nn.Sequential(
+            nn.Conv2d(in_channels=self.in_channels * 2, out_channels=self.in_channels,
+                    kernel_size=1, stride=1, padding=0),
+            nn.BatchNorm2d(self.in_channels)
+        )
         self.RACBLOCK = RAC(in_channels)
 
     def forward(self, x):
         W_y_1 = self.RACBLOCK(x)
         x_mask = x.clone()
-        x_mask[:, :, (h_x * (303) // 768):(h_x * (405) // 768), (w_x * 126 // 768):(w_x * 535 // 768)] = W_y_1
+        b_x, c_x, h_x, w_x = x.size()
+        x_mask[:, :, (h_x * (200) // 768):(h_x * (500) // 768), (w_x * 100 // 768):(w_x * 600 // 768)] = W_y_1
         z = torch.cat((x, x_mask), dim=1)
         z = self.conv_z(z)
 

@@ -19,10 +19,7 @@ def fast_hist(target, output):
 def Dice(hist, output, target):
     if target.sum() == 0:
         return 1
-        # if output.sum() == 0:
-        #     return 1
-        # else:
-        #     return 0
+
     else:
         intersection = 2 * hist[1][1]
         return (intersection + smooth) / (output.sum() + target.sum() + smooth)
@@ -44,9 +41,6 @@ def ACC(hist, target):
 
 
 def surface_distances(result, reference,  connectivity=1):
-    """
-    表面距离
-    """
     result = np.atleast_1d(result.astype(np.bool))# 0 1转化为boolean图
     reference = np.atleast_1d(reference.astype(np.bool))
 

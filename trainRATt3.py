@@ -17,13 +17,19 @@ from torch.utils.data import DataLoader, random_split
 from metrics import fast_hist, Dice
 
 
+
+# Configuration Adjustment
 load_pretrain = False
-load_my = False
-load_path = './Log/RAT_t3/RAT_t3.pth'
+load_path = './pretrain/RAT_t3.pth'
 mymodel_name = "RAT_t3"
-BATCH_SIZE = 12
+BATCH_SIZE = 4
 EPOCH = 100
 LEARNING_RATE = 0.0001
+
+img_paths = glob(r'/home/train_img/*')  # train_data path
+label_paths = glob(r'/home/train_label/*')  # train_label path
+valimg_paths = glob(r'/home/val_img/*')  # val_data path
+vallabel_paths = glob(r'/home/val_label/*')  # val_label path
 
 loss_names = list(Loss.__dict__.keys())
 loss_names.append('BCEWithLogitsLoss')
@@ -33,13 +39,6 @@ log_file = os.path.join(current_filename, 'log.txt')
 lr_file = os.path.join(current_filename, 'lr.txt')
 mymodel_file = os.path.join(current_filename, mymodel_name + ".pth")
 
-
-def setup_seed(seed):
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
-    np.random.seed(seed)
-    random.seed(seed)
-    torch.backends.cudnn.deterministic = True
 
 
 class AverageMeter(object):
@@ -65,7 +64,7 @@ def validate(val_loader, model, fo):
     model.eval()
     i = 0
     dice_whole = np.zeros(len(val_loader))
-    for (input, target) in tqdm(enumerate(val_loader), total=len(val_loader)):
+    for i, (input, target) in tqdm(enumerate(val_loader), total=len(val_loader)):
         input = input.cuda()
         target = target.cuda()
         target = target.squeeze()
@@ -82,7 +81,7 @@ def validate(val_loader, model, fo):
     dice_whole = np.sort(dice_whole)
     print(
         f"\nDice:{np.mean(dice_whole)}")
-    # 添加loss
+
     fo.write(
         '\n' + f"Dice:{np.mean(dice_whole)}" + '\n')
     fo.write(
@@ -98,7 +97,6 @@ def train(
         batch_size=32,
         lr=0.00001,
 ):
-    # 添加1
     if not os.path.lexists(current_filename):
         os.mkdir(current_filename)
     fo = open(log_file, "a+")
@@ -111,16 +109,10 @@ def train(
     flr.flush()
     print("open file!")
 
-    # 写入基本信息：
     fo.write(f"batch_size={batch_size}" + '\n')
     fo.write(f"epochs={epochs}" + '\n')
     fo.write(f"learn_rate:{lr}" + '\n')
     fo.flush()
-
-    img_paths = glob(r'/home/train_img/*')    # train_data path
-    label_paths = glob(r'/home/train_label/*')     # train_label path
-    valimg_paths = glob(r'/home/val_img/*')   # val_data path
-    vallabel_paths = glob(r'/home/val_label/*')   # val_label path
 
     train_dataset = Dataset(img_paths, label_paths, train_flag=True)
     val_dataset = Dataset(valimg_paths, vallabel_paths, train_flag=False)
@@ -134,7 +126,7 @@ def train(
     fo.flush()
 
     optimizer = optim.Adam(model.parameters(), lr=lr)
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max', factor=0.1, patience=6)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max', factor=0.1, patience=10)
     fo.write(f"optim:Adam" + '\n')
     fo.flush()
 
@@ -179,7 +171,8 @@ def train(
                     torch.save(model.state_dict(), mymodel_file)
                     print('Saved the best model！')
                     best = dice_score
-                mylastmodel_file = os.path.join(current_filename, time.strftime('%H-%M') + ".pth")
+                savedice = str(round(dice_score.item()*100, 2))
+                mylastmodel_file = os.path.join(current_filename, savedice + ".pth")
                 torch.save(model.state_dict(), mylastmodel_file)
                 fo.write('\n' + f">>>  Best_sorce:{best}, Epoch:{epoch}" + '\n')
                 fo.flush()
@@ -197,8 +190,6 @@ def train(
 
 
 if __name__ == "__main__":
-    setup_seed(20)
-
     print("Learning rate is {}".format(LEARNING_RATE))
     from model.RAtransformer import RAT
 
@@ -206,9 +197,7 @@ if __name__ == "__main__":
 
     torch.cuda.set_device(0)
     model = nn.DataParallel(model, device_ids=[0, 1, 2, 3]).cuda()
-    # device_num = 'cuda:3'
-    # device = torch.device(device_num if torch.cuda.is_available() else 'cpu')
-    # model.to(device=device)
+
 
     if load_pretrain:
         print('Load pretrain model!')
@@ -219,10 +208,6 @@ if __name__ == "__main__":
         model_dict.update(pretrained_dict)
         model.load_state_dict(model_dict)
 
-    if load_my:
-        print('Load My pretrain model!')
-        pretrained_dict = torch.load(load_path)
-        model.load_state_dict(pretrained_dict, strict=False)
 
     try:
         train(model, EPOCH, BATCH_SIZE, LEARNING_RATE)

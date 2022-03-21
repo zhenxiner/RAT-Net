@@ -6,8 +6,8 @@ from functools import partial
 from timm.models.layers import DropPath, to_2tuple, trunc_normal_
 from timm.models.registry import register_model
 from timm.models.vision_transformer import _cfg
-from .RASAB_t1 import RASAB as RASAB_t1
-from .RASAB_t3 import RASAB as RASAB_t3
+from .RASAB_t1 import RASAB as NONLocal_t1
+from .RASAB_t3 import RASAB as NONLocal_t3
 from .RASAB_t3 import RAC
 import math
 
@@ -135,36 +135,23 @@ class OverlapPatchEmbed(nn.Module):
 
         return x2, H, W, x, h_x, w_x
 
-class OverlapPatchEmbed_whole(nn.Module):
-    """ Image to Patch Embedding
-    """
-
-    def __init__(self, patch_size=7, stride=4, in_chans=3, embed_dim=768):
-        super().__init__()
-        patch_size = to_2tuple(patch_size)
-
-        self.patch_size = patch_size
-        self.proj = nn.Conv2d(in_chans, embed_dim, kernel_size=patch_size, stride=stride,
-                              padding=(patch_size[0] // 2, patch_size[1] // 2))
-        self.norm = nn.LayerNorm(embed_dim)
-
-    def forward(self, x):
-        x = self.proj(x)
-        _, _, H, W = x.shape
-        x = x.flatten(2).transpose(1, 2)
-        x = self.norm(x)
-
-        return x, H, W
-
 class regionreplacement(nn.Module):
-    def __init__(self):
+    def __init__(self, in_channels):
         super().__init__()
+        self.in_channels = in_channels
+        self.conv_out = nn.Sequential(
+            nn.Conv2d(in_channels=self.in_channels * 2, out_channels=self.in_channels,
+                    kernel_size=1, stride=1, padding=0),
+            nn.BatchNorm2d(self.in_channels)
+        )
 
     def forward(self, x, H, W, x2, h_x, w_x):
         B, _, C = x.shape
         x = x.reshape(B, H, W, C).permute(0, 3, 1, 2)
         out = x2.clone()
-        out[:, :, (h_x * 303 // 768):(h_x * 405 // 768), (w_x * 126 // 768):(w_x * 535 // 768)] = x
+        out[:, :, (h_x * 200 // 768):(h_x * 500 // 768), (w_x * 100 // 768):(w_x * 600 // 768)] = x
+        out = torch.cat((x2, out), dim=1)
+        out = self.conv_out(out)
         out = out.flatten(2).transpose(1, 2)
 
         return out
@@ -182,11 +169,11 @@ class MixVisionTransformer(nn.Module):
         # patch_embed
         self.patch_embed1 = OverlapPatchEmbed(patch_size=7, stride=4, in_chans=in_chans,
                                               embed_dim=embed_dims[0])
-        self.patch_embed2 = OverlapPatchEmbed_whole(patch_size=3, stride=2, in_chans=embed_dims[0],
+        self.patch_embed2 = OverlapPatchEmbed(patch_size=3, stride=2, in_chans=embed_dims[0],
                                               embed_dim=embed_dims[1])
-        self.patch_embed3 = OverlapPatchEmbed_whole(patch_size=3, stride=2, in_chans=embed_dims[1],
+        self.patch_embed3 = OverlapPatchEmbed(patch_size=3, stride=2, in_chans=embed_dims[1],
                                               embed_dim=embed_dims[2])
-        self.patch_embed4 = OverlapPatchEmbed_whole(patch_size=3, stride=2, in_chans=embed_dims[2],
+        self.patch_embed4 = OverlapPatchEmbed(patch_size=3, stride=2, in_chans=embed_dims[2],
                                               embed_dim=embed_dims[3])
 
         # transformer encoder
@@ -223,7 +210,10 @@ class MixVisionTransformer(nn.Module):
             for i in range(depths[3])])
         self.norm4 = norm_layer(embed_dims[3])
 
-        self.fusion = regionreplacement()
+        self.fusion1 = regionreplacement(64)
+        self.fusion2 = regionreplacement(128)
+        self.fusion3 = regionreplacement(320)
+        self.fusion4 = regionreplacement(512)
 
 
     def forward_features(self, x):
@@ -234,7 +224,7 @@ class MixVisionTransformer(nn.Module):
         x, H, W, x2, h_x, w_x = self.patch_embed1(x)
         for i, blk in enumerate(self.block1):
             x = blk(x, H, W)
-        x = self.fusion(x, H, W, x2, h_x, w_x)
+        x = self.fusion1(x, H, W, x2, h_x, w_x)
         x = self.norm1(x)
         x = x.reshape(B, h_x, w_x, -1).permute(0, 3, 1, 2).contiguous()
         outs.append(x)
@@ -243,7 +233,7 @@ class MixVisionTransformer(nn.Module):
         x, H, W, x2, h_x, w_x = self.patch_embed2(x)
         for i, blk in enumerate(self.block2):
             x = blk(x, H, W)
-        x = self.fusion(x, H, W, x2, h_x, w_x)
+        x = self.fusion2(x, H, W, x2, h_x, w_x)
         x = self.norm2(x)
         x = x.reshape(B, h_x, w_x, -1).permute(0, 3, 1, 2).contiguous()
         outs.append(x)
@@ -252,7 +242,7 @@ class MixVisionTransformer(nn.Module):
         x, H, W, x2, h_x, w_x = self.patch_embed3(x)
         for i, blk in enumerate(self.block3):
             x = blk(x, H, W)
-        x = self.fusion(x, H, W, x2, h_x, w_x)
+        x = self.fusion3(x, H, W, x2, h_x, w_x)
         x = self.norm3(x)
         x = x.reshape(B, h_x, w_x, -1).permute(0, 3, 1, 2).contiguous()
         outs.append(x)
@@ -261,7 +251,7 @@ class MixVisionTransformer(nn.Module):
         x, H, W, x2, h_x, w_x = self.patch_embed4(x)
         for i, blk in enumerate(self.block4):
             x = blk(x, H, W)
-        x = self.fusion(x, H, W, x2, h_x, w_x)
+        x = self.fusion4(x, H, W, x2, h_x, w_x)
         x = self.norm4(x)
         x = x.reshape(B, h_x, w_x, -1).permute(0, 3, 1, 2).contiguous()
         outs.append(x)

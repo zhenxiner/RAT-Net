@@ -22,7 +22,6 @@ class BCEDiceLoss(nn.Module):
         input = input.view(num, -1)
         target = target.view(num, -1)
         intersection = (input * target)
-        # dice = (2. * intersection.sum(1) + smooth) / (input.sum(1) + target.sum(1) + smooth)
         dice = ((2. * intersection.sum(1))) / (input.sum(1) + target.sum(1) + smooth)
         dice = 1 - dice.sum() / num
         # return dice
