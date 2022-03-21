@@ -7,7 +7,7 @@ Region Aware Transformer for Automatic Breast Ultrasound Tumor Segmentation
 
 # Test on your dataset
 Please modify lines 43~45 of test.py and set the paths of the .pth file, test image and test annotation file. Once done, you can use 
-```java  
+```python  
 python test.py  
 ```
 command to test the network.
@@ -16,7 +16,7 @@ command to test the network.
 
 # Predict
 Please modify lines 40~41 of predict.py and set the paths of the .pth file, predict images. Once done, you can use 
-```java  
+```python  
 python predict.py  
 ```
 command to predict the image.
