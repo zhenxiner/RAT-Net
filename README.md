@@ -17,19 +17,19 @@ tqdm==4.62.3
 dataset  
 ├── traindata  
 │   ├── train img 
-│   │   ├── 00000.png
-│   │    ……
-│   │   └── XXXXX.png
+│   │   ├── 00000.png  
+│   │    ……  
+│   │   └── XXXXX.png  
 │   └── train label  
-│   │   ├── 00000.png
-│   │    ……
-│   │   └── XXXXX.png
+│   │   ├── 00000.png  
+│   │    ……  
+│   │   └── XXXXX.png  
 ├── valdata  
 │   ├── val img  
 │   └── val label 
 ├── testdata  
 │   ├── test img  
-│   └── test label 
+│   └── test label  
 
 ### Train
 
