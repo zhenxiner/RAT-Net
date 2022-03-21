@@ -1,11 +1,13 @@
 # RAT-Net (Accept at MIDL2022)
 Region Aware Transformer for Automatic Breast Ultrasound Tumor Segmentation
 
-# Predict
+# Prerequisites
 
 # Train on your dataset
 
 # Test on your dataset
+
+# Predict
 
 # Citation 
 
