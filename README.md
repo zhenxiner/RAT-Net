@@ -10,9 +10,16 @@ Please modify lines 43~45 of test.py and set the paths of the .pth file, test im
 ```java  
 python test.py  
 ```
-command to test work.
+command to test the network.
+
+-There are many verification metrics in the metrics file, and you can choose the verification metric you want to add.
 
 # Predict
+Please modify lines 40~41 of predict.py and set the paths of the .pth file, predict images. Once done, you can use 
+```java  
+python predict.py  
+```
+command to predict the image.
 
 # Citation 
 
