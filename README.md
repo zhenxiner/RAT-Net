@@ -15,3 +15,5 @@ UTNet: https://github.com/yhygao/UTNet
 TransUNet: https://github.com/Beckschen/TransUNet
 
 SegFormer: https://github.com/NVlabs/SegFormer
+
+nnUNet: https://github.com/MIC-DKFZ/nnUNet
