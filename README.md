@@ -1,11 +1,11 @@
 # RAT-Net (Accept at MIDL2022)
 Region Aware Transformer for Automatic Breast Ultrasound Tumor Segmentation
 
-# Prerequisites
+## Prerequisites
 
-# Train on your dataset
+## Train on your dataset
 
-# Test on your dataset
+## Test on your dataset
 Please modify lines 43~45 of test.py and set the paths of the .pth file, test image and test annotation file. Once done, you can use 
 ```python  
 python test.py  
@@ -14,7 +14,7 @@ command to test the network.
 
 -There are many verification metrics in the metrics file, and you can choose the verification metric you want to add.
 
-# Predict
+## Predict
 Please modify lines 40~41 of predict.py and set the paths of the .pth file, predict images. Once done, you can use 
 ```python  
 python predict.py  
